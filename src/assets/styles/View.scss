@@ -1,0 +1,360 @@
+@import "../../assets/styles/mixins.scss";
+@import "../../assets/styles/variables";
+
+* {
+  box-sizing: border-box;
+}
+
+:host {
+  color: var(--md-primary-text-color, var(--color-gray-100));
+  font-family: "CiscoSansTT Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: calc(100% - 1.5rem);
+  height: calc(100% - 1.5rem);
+  margin: 12px;
+  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+.customer-journey-widget-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.empty-state-container {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+
+  .empty-state-text {
+    font-family: "CiscoSansTT Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--md-secondary-text-color, #545454);
+  }
+}
+
+.top-header-row {
+  .flex-inline {
+    display: flex;
+    padding: 1rem 2rem 0;
+    row-gap: 0.75rem;
+    flex-wrap: wrap;
+
+    .custom-input-label {
+      margin-right: 1rem;
+      align-items: center;
+      font-size: 1rem;
+      margin-top: 0.2rem;
+      display: inline-block;
+    }
+
+    .input-wrapper {
+      display: flex;
+      flex: 1;
+
+      .customer-journey-search-input {
+        flex: 1;
+        min-width: 10rem;
+        color: var(--md-primary-text-color, #171b1f);
+      }
+    }
+
+    .customer-journey-search-input::part(input) {
+      max-width: 100rem;
+      min-width: 12rem;
+    }
+
+    .filter-buttons > md-button {
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+
+    .reload-icon {
+      margin-left: 0.5rem;
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+}
+
+.outer-container {
+  height: 100%;
+  padding: 0 12px 12px 12px;
+  overflow: auto;
+
+  .inner-header {
+    border-bottom: 0;
+  }
+
+  .customer-journey-search-input {
+    font-size: 14px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: normal;
+  }
+}
+
+.spinner-container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  &.small {
+    height: 120px;
+  }
+}
+
+.header .spinner-container {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  word-break: break-word;
+}
+
+.full-height {
+  height: 100%;
+}
+
+md-loading {
+  align-self: center;
+}
+
+nav {
+  padding: 0.5rem;
+  text-align: center;
+}
+
+md-button[active]::part(button) {
+  background-color: rgb(0, 122, 163);
+}
+md-button.date-filter[active]::part(button) {
+  background-color: rgb(22, 166, 147);
+}
+
+md-badge,
+md-link {
+  margin: 0.5rem;
+  display: block;
+}
+
+div.profile {
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+
+  align-self: center;
+  padding: 0.5rem;
+  width: inherit;
+  min-width: var(--default-width);
+  min-height: 100%;
+
+  overflow-y: auto;
+
+  md-tooltip {
+    display: block;
+  }
+
+  header {
+    grid-area: header;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 200;
+    color: var(--md-primary-text-color);
+    background-color: var(--md-tertiary-bg-color);
+    border-radius: 0.25rem;
+  }
+
+  &.expanded {
+    display: grid;
+    grid-template-areas:
+      "profile header"
+      "profile timeline";
+    justify-content: space-around;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1rem;
+
+    .flex-inline {
+      grid-area: header;
+    }
+    .grid-profile {
+      grid-area: profile;
+      min-width: 26rem;
+    }
+    .grid-timeline {
+      grid-area: timeline;
+      min-width: 26rem;
+      margin-top: 0;
+      height: 100%;
+    }
+    .grid-identity {
+      grid-area: profile;
+      min-width: 26rem;
+    }
+  }
+}
+
+cjaas-timeline::part(stream) {
+  height: calc(100% - 2rem);
+}
+
+cjaas-identity {
+  display: block;
+  border-radius: 0.5rem;
+  min-height: 150px;
+}
+
+cjaas-identity::part(alias-header-container) {
+  display: none;
+}
+
+cjaas-identity::part(list) {
+  margin-top: 0;
+}
+
+cjaas-profile::part(top-content) {
+  margin: 0;
+}
+
+cjaas-profile::part(separator) {
+  display: none;
+}
+
+.grid-timeline {
+  height: 100%;
+}
+
+details:last-child {
+  flex-grow: 1;
+  overflow-y: hidden;
+  flex-shrink: 0;
+}
+
+details summary {
+  border-bottom: 1px solid var(--md-quaternary-bg-color, #DEDEDE);
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem;
+  font-size: 1.25rem;
+  font-size: bold;
+  cursor: pointer;
+}
+
+.overflow-container {
+  height: 100%;
+  overflow: auto;
+}
+
+details summary md-icon {
+  color: var(--md-secondary-text-color, #545454);
+  transform: rotate(-180deg);
+  transition: all 200ms ease-in-out;
+}
+
+details[open] summary md-icon {
+  transform: rotate(0deg);
+}
+
+.search-ui {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-evenly;
+  gap: 1rem;
+}
+
+.timeline-item {
+  margin: 0 0.5rem 0.5rem 0.5rem;
+}
+
+.show-true {
+  display: inherit;
+}
+.show-false {
+  display: none;
+}
+
+.new-events,
+.filter-buttons,
+.date-filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.25rem;
+}
+
+.new-events {
+  justify-content: flex-start;
+  align-items: flex-end;
+  padding: 0.5rem;
+}
+
+.event-counter {
+  align-self: center;
+}
+
+.container {
+  width: 100%;
+  height: calc(100% - 2.75rem);
+  overflow: hidden;
+}
+
+#events-list {
+  height: 100%;
+}
+
+.sub-widget-header {
+  color: var(--md-primary-text-color, #171b1f);
+  display: block;
+  font-size: 16px;
+  line-height: 24px;
+  margin: 0px;
+  height: 24px;
+  margin-top: 0.4rem;
+  margin-right: 0.5rem;
+}
+
+.sub-widget-flex-container {
+  padding: 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 2rem;
+
+  .column {
+    flex: 1 1 400px;
+  }
+}
+
+.sub-widget-section {
+  padding: 1rem 0 0;
+}
+
+.sub-widget-detail-container {
+  padding: 1rem;
+}
+
+.alias-info-tooltip {
+  height: 2rem;
+  margin-top: 0.1rem;
+}
+
+.alias-expand-icon {
+  margin-left: auto;
+}
