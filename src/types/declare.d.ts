@@ -16,6 +16,11 @@ declare module "*.svg" {
   export default svg;
 }
 
+declare module "*.png" {
+  const png: any;
+  export default png;
+}
+
 declare module "*.json" {
   const value: any;
   export default value;

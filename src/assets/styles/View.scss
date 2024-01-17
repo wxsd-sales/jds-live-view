@@ -337,8 +337,12 @@ details[open] summary md-icon {
   flex-wrap: wrap;
   column-gap: 2rem;
 
-  .column {
-    flex: 1 1 400px;
+  .left-column {
+    flex: 1
+  }
+
+  .right-column {
+    flex:2
   }
 }
 

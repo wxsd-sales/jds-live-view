@@ -145,7 +145,7 @@ export const commonDev = merge(common, {
   name: "dev",
   mode: "development",
   devtool: "source-map",
-  entry: "./src/[sandbox]/sandbox.ts",
+  entry: {index: "./src/[sandbox]/sandbox.ts","login": "./src/[sandbox]/login.ts"},
   output: {
     path: pBuild,
   },

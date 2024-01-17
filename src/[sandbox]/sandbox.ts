@@ -12,15 +12,8 @@
  */
 
 // @ts-ignore
-const BEARER_TOKEN = process.env.DOTENV.BEARER_TOKEN;
-// @ts-ignore
 const BASE_URL = process.env.DOTENV.BASE_URL;
-// @ts-ignore
-const ORGANIZATION_ID = process.env.DOTENV.ORGANIZATION_ID;
-// @ts-ignore
-const PROJECT_ID = process.env.DOTENV.PROJECT_ID;
-// @ts-ignore
-const TEMPLATE_ID = process.env.DOTENV.TEMPLATE_ID;
+
 // @ts-ignore
 const IDENTITY = process.env.DOTENV.IDENTITY;
 
@@ -28,10 +21,9 @@ import "@momentum-ui/web-components";
 import "@cjaas/common-components";
 import { customElement, html, internalProperty, LitElement } from "lit-element";
 import styles from "./sandbox.scss";
-import * as iconData from "@/assets/icons.json";
-import * as customIconData from "@/assets/custom-icons.json";
 import "..";
 import { mockedInteractionData } from "./sandbox.mock";
+import home from "@img/home.png"
 
 @customElement("cjaas-component-sandbox")
 export class Sandbox extends LitElement {
@@ -39,9 +31,42 @@ export class Sandbox extends LitElement {
   @internalProperty() containerWidth = "80vw";
   @internalProperty() containerHeight = "80vh";
   @internalProperty() selectedComponent = "Activity Item";
+  @internalProperty() isLoggedIn = !!localStorage.getItem("webex-access-token");
+  @internalProperty() isProjectSettingsAdded =false;
+  @internalProperty() projectId: string | null = null;
+  @internalProperty() organizationId: string | null = null;
+
   static get styles() {
     return styles;
   }
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    // Check if there's an access token in the URL
+    const urlParams = new URLSearchParams((window.location.hash.substring(1)));
+    const accessToken = urlParams.get('access_token');
+
+    if (accessToken) {
+      // Save the access token to localStorage
+      localStorage.setItem('webex-access-token', accessToken);
+
+      this.dispatchEvent(new CustomEvent("sign-in", {detail: {login: true}, bubbles: true, composed: true}));
+
+      // Remove the access token from the URL to avoid exposing it in the browser history
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Check if the user is logged in based on the presence of the access token
+    this.isLoggedIn = !!localStorage.getItem('webex-access-token');
+
+    if (this.isLoggedIn) {
+      window.history.replaceState({}, document.title, '/');
+    }
+  }
+
+
+
 
   themeToggle() {
     return html`
@@ -56,30 +81,7 @@ export class Sandbox extends LitElement {
           ?checked=${this.darkTheme}
           >Dark Mode</md-checkbox
         >
-        <div class="switch-container">
-          <md-label class="switch" text="Responsive">
-            Widget Boundary
-          </md-label>
-          <md-input
-            type="text"
-            id="width-switch"
-            class="theme-switch"
-            data-aspect="responsive-width"
-            @click=${(e: MouseEvent) => this.toggleSetting(e)}
-            @input-change=${(e: MouseEvent) => this.toggleSetting(e)}
-            value=${this.containerWidth}
-          ></md-input>
-          <md-label>x</md-label>
-          <md-input
-            type="text"
-            id="height-switch"
-            class="theme-switch"
-            data-aspect="responsive-height"
-            @click=${(e: MouseEvent) => this.toggleSetting(e)}
-            @input-change=${(e: MouseEvent) => this.toggleSetting(e)}
-            value=${this.containerHeight}
-          ></md-input>
-        </div>
+       
       </div>
     `;
   }
@@ -97,35 +99,134 @@ export class Sandbox extends LitElement {
     } else return console.error("Invalid data-aspect input");
   }
 
+  renderHeader(){
+    return html`<div class="widget-header">
+    <img class="logo" src=${home} alt="Logo">
+    <button class="sign-out" @click="${this.signOut}">Sign Out</button>
+  </div>`;
+  }
+
   renderWidget() {
     const containerStyle = `width: ${this.containerWidth}; height: ${this.containerHeight};`;
 
     return html`
-    <div class="toggle">
-      ${this.themeToggle()}
-    </div>
     <md-theme ?darkTheme=${this.darkTheme} lumos>
+      ${this.renderHeader()}
       <div class="container">
-        <h2 class="sandbox-header">Customer Journey Widget </br><span style="font-size: 12px; font-weight: 100">Production Version: using prod API endpoints (same as QA Agent Desktop endpoints & sasTokens)</span></h2>
+        <h2 class="sandbox-header">Customer Journey Live View</h2>
         <div style=${containerStyle} class="widget-container">
           <customer-journey-widget
-            .bearerToken=${BEARER_TOKEN}
+            .bearerToken=${localStorage.getItem("webex-access-token")}
             base-url=${BASE_URL}
-            .organizationId=${ORGANIZATION_ID}
+            .organizationId=${this.organizationId}
             .interactionData=${mockedInteractionData("INBOUND", IDENTITY)}
-            project-id=${PROJECT_ID}
+            project-id=${this.projectId}
             logs-on
           ></customer-journey-widget>
         </div>
+        
       </div>
     </md-theme>
+     <div class="toggle">
+      ${this.themeToggle()}
+    </div>
   `;
+  }
+
+  hideLogin(){
+    this.isLoggedIn = true;
+  }
+
+  showLogin(){
+    this.isLoggedIn = false;
+  }
+
+  signOut() {
+    // Remove the access token from localStorage
+    localStorage.removeItem('webex-access-token');
+
+    // Set isLoggedIn to false
+    this.isLoggedIn = false;
+
+    // Dispatch a custom event named 'sign-out'
+    this.dispatchEvent(new CustomEvent('sign-out'));
+  }
+
+  renderLogin(){
+    window.history.pushState({}, 'Login', '/login');
+    return  html`<login-component @sign-in="${this.hideLogin}" @sign-out="${this.showLogin}"></login-component>`
+  }
+
+  renderLogOut(){
+    return  html`<button @sign-in="${this.hideLogin}" @sign-out="${this.showLogin}"></login-component>`
+  }
+
+  onChangeProjectId(event: CustomEvent){
+    const value = event.detail.value;
+    this.projectId =  value;
+  }
+
+  onChangeOrganizationId(event: CustomEvent){
+    const value = event.detail.value;
+    this.organizationId =  value;
+  }
+
+  handleSubmitSettings(){
+    if (this.projectId && this.organizationId) {
+      // Append parameters to the query string
+      const url = new URL(window.location.href);
+      url.searchParams.set('projectId', this.projectId);
+      url.searchParams.set('organizationId', this.organizationId);
+  
+      // Replace the current URL with the updated URL
+      window.history.replaceState({}, document.title, url.toString());
+
+      this.isProjectSettingsAdded = true;
+    }
+  }
+
+  renderProjectSettings(){
+    return html`
+    ${this.renderHeader()}
+    <div class="container">
+      <div class="flex-inline">
+
+        <div class="input-wrapper">
+          <md-input
+            label="Project Id"
+            class="customer-journey-search-input"
+            id="project-input"
+            value=${this.projectId || ""}
+            shape="pill"
+            @input-change=${(event: CustomEvent) => this.onChangeProjectId(event)}
+          >
+          </md-input>
+
+          <md-input
+            label="Org Id"
+            class="customer-journey-search-input"
+            id="organization-input"
+            value=${this.organizationId || ""}
+            shape="pill"
+            @input-change=${(event: CustomEvent) => this.onChangeOrganizationId(event)}
+          >
+          </md-input>
+
+          <button
+            class="primary-button"
+            @click=${this.handleSubmitSettings}
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+    `
   }
 
   render() {
     /** Update .env file
      * PRIVATE_KEY
-     * BEARER_TOKEN
      * BASE_URL
      * ORGANIZATION_ID
      * PROJECT_ID
@@ -133,6 +234,11 @@ export class Sandbox extends LitElement {
      * IDENTITY
      */
 
-    return this.renderWidget();
+    if(!this.isLoggedIn) return this.renderLogin();
+
+    if(!this.isProjectSettingsAdded) return this.renderProjectSettings();
+    
+
+    return this.isLoggedIn ?this.renderWidget() : this.renderLogin();
   }
 }

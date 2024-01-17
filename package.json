@@ -12,7 +12,7 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "npm run check && npm run gen:version && webpack-dev-server --config ./webpack.config.dev.server.ts",
-    "dev:build": "npm run check && npm run gen:version && webpack --config-name=dev",
+    "build": "npm run check && npm run gen:version && webpack --config-name=dev",
     "dist": "npm run check && npm run gen:version && webpack --config-name=distProd",
     "dist:dev": "npm run check && npm run gen:version && webpack --config-name=distDev",
     "dist:watch": "npm run check && npm run gen:version && webpack --config-name=distDevWatch",
