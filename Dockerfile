@@ -26,5 +26,5 @@ COPY . .
 
 #overwrite default environment variables
 COPY prod.env .env
-EXPOSE 4200
+# EXPOSE 10020
 CMD [ "npm", "start" ]

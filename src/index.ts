@@ -454,6 +454,21 @@ export default class CustomerJourneyWidget extends LitElement {
 
     const axiosInstance = axios.create(config);
 
+    axios.interceptors.response.use(
+      response => {
+        return response;
+      },
+      error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("webex-access-token");
+          window.location.href = "/login";
+        }
+
+        // If it's not a 401 error, pass the error along to the next error handler
+        return Promise.reject(error);
+      }
+    );
+
     return axiosInstance
       .get(url)
       .then(response => {
@@ -559,6 +574,7 @@ export default class CustomerJourneyWidget extends LitElement {
       url,
       headers: {
         Authorization: `Bearer ${this.bearerToken}`,
+        "Content-Type": "application/json",
       },
     };
 

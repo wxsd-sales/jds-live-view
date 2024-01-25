@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           name: jds-standalone-webpage
           ports:
-            - containerPort: 8889
+            - containerPort: 10020
 ---
 apiVersion: v1
 kind: Service
@@ -28,7 +28,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 8889
+      targetPort: 10020
       protocol: TCP
   type: NodePort
   selector:

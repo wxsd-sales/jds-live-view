@@ -68,7 +68,7 @@
     "name": "icon-analysis_16",
     "color": "red"
   },
-  "Initiated Walk In": {
+  "Video": {
     "name": "icon-audio-video_16",
     "color": "orange"
   },
@@ -92,5 +92,9 @@
   "multi events single day": {
     "name": "icon-calendar-day_12",
     "color": "yellow"
+  },
+  "Web": {
+    "name": "icon-home-active_16",
+    "color": "green"
   }
 }

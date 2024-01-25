@@ -5,6 +5,7 @@
     "name": "Kevin Hyde",
     "email": "kehyde@cisco.com"
   },
+  "type": "module",
   "license": "MIT",
   "repository": "https://github.com/CiscoDevNet/cjaas-widgets",
   "main": "./dist/index.js",
