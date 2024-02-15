@@ -1,5 +1,5 @@
-#sudo docker build -t jds-standalone-webpage .
-#sudo docker run -i -t jds-standalone-webpage
+#docker build -t jds-standalone-webpage .
+#docker run -i -t jds-standalone-webpage
 
 #aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 191518685251.dkr.ecr.us-west-1.amazonaws.com
 #docker tag jds-standalone-webpage:latest 191518685251.dkr.ecr.us-west-1.amazonaws.com/jds-standalone-webpage:latest

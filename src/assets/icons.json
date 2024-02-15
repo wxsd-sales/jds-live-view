@@ -93,8 +93,16 @@
     "name": "icon-calendar-day_12",
     "color": "yellow"
   },
+  "Visit": {
+    "name": "icon-home-active_16",
+    "color": "green"
+  },
   "Web": {
     "name": "icon-home-active_16",
+    "color": "green"
+  },
+  "Test": {
+    "name": "fa-solid fa-user",
     "color": "green"
   }
 }

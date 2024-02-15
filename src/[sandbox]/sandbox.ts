@@ -17,6 +17,9 @@ const BASE_URL = process.env.DOTENV.BASE_URL;
 // @ts-ignore
 const IDENTITY = process.env.DOTENV.IDENTITY;
 
+// @ts-ignore
+const ACCESS_TOKEN_TTL = parseInt(process.env.DOTENV.ACCESS_TOKEN_TTL_HOURS) * 3600 * 1000;
+
 import "@momentum-ui/web-components";
 import "@cjaas/common-components";
 import { customElement, html, internalProperty, LitElement } from "lit-element";
@@ -25,6 +28,8 @@ import "..";
 import { mockedInteractionData } from "./sandbox.mock";
 import home from "@img/home.png";
 import axios from "axios";
+import { getWithExpiry, setWithExpiry } from "./storage";
+
 
 @customElement("cjaas-component-sandbox")
 export class Sandbox extends LitElement {
@@ -32,7 +37,7 @@ export class Sandbox extends LitElement {
   @internalProperty() containerWidth = "80vw";
   @internalProperty() containerHeight = "80vh";
   @internalProperty() selectedComponent = "Activity Item";
-  @internalProperty() isLoggedIn = !!localStorage.getItem("webex-access-token");
+  @internalProperty() isLoggedIn = !!getWithExpiry("webex-access-token");
   @internalProperty() isProjectSettingsAdded = false;
   @internalProperty() projectId: string | null = null;
   @internalProperty() organizationId: string | null = null;
@@ -40,6 +45,8 @@ export class Sandbox extends LitElement {
   static get styles() {
     return styles;
   }
+
+
 
   connectedCallback() {
     super.connectedCallback();
@@ -50,7 +57,8 @@ export class Sandbox extends LitElement {
 
     if (accessToken) {
       // Save the access token to localStorage
-      localStorage.setItem("webex-access-token", accessToken);
+      //localStorage.setItem("webex-access-token", accessToken);
+      setWithExpiry("webex-access-token", accessToken, ACCESS_TOKEN_TTL)
 
       this.dispatchEvent(new CustomEvent("sign-in", { detail: { login: true }, bubbles: true, composed: true }));
 
@@ -59,7 +67,7 @@ export class Sandbox extends LitElement {
     }
 
     // Check if the user is logged in based on the presence of the access token
-    this.isLoggedIn = !!localStorage.getItem("webex-access-token");
+    this.isLoggedIn = !!getWithExpiry("webex-access-token");
 
     if (this.isLoggedIn) {
       window.history.replaceState({}, document.title, "/");
@@ -115,7 +123,7 @@ export class Sandbox extends LitElement {
           <h2 class="sandbox-header">Customer Journey Live View</h2>
           <div style=${containerStyle} class="widget-container">
             <customer-journey-widget
-              .bearerToken=${localStorage.getItem("webex-access-token")}
+              .bearerToken=${getWithExpiry("webex-access-token")}
               base-url=${BASE_URL}
               .organizationId=${this.organizationId}
               .interactionData=${mockedInteractionData("INBOUND", IDENTITY)}
@@ -186,7 +194,7 @@ export class Sandbox extends LitElement {
 
   renderProjectSettings() {
     const headers = {
-      Authorization: "Bearer " + localStorage.getItem("webex-access-token"),
+      Authorization: "Bearer " + getWithExpiry("webex-access-token"),
     };
     axios.get("https://webexapis.com/v1/people/me", { headers }).then(r => {
       console.log(r.data);
@@ -194,6 +202,11 @@ export class Sandbox extends LitElement {
       const orgIds = atob(r.data.orgId).split("/");
       this.organizationId = orgIds[orgIds.length - 1];
     });
+
+    if (!this.projectId){
+      //@ts-ignore
+      this.projectId = process.env.DOTENV.PROJECT_ID;
+    }
     return html`
       ${this.renderHeader()}
       <div class="container">

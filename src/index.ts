@@ -41,6 +41,8 @@ import {
   mixpanelKey,
 } from "./types/mixpanel.constants";
 
+import { getWithExpiry } from "./[sandbox]/storage";
+
 export enum EventType {
   Agent = "agent",
   Task = "task",
@@ -72,6 +74,7 @@ export enum PatchOperations {
   Remove = "remove",
   Replace = "replace",
 }
+
 
 @customElementWithCheck("customer-journey-widget")
 export default class CustomerJourneyWidget extends LitElement {
@@ -441,7 +444,13 @@ export default class CustomerJourneyWidget extends LitElement {
   }
 
   async getDefaultTemplateId() {
-    const templateName = "journey-default-template";
+    this.bearerToken = getWithExpiry("webex-access-token");
+    if(!this.bearerToken){
+      window.location.href = "/login";
+      return;
+    }
+    //@ts-ignore
+    const templateName = process.env.DOTENV.DEFAULT_TEMPLATE_NAME;
     const url = `${this.baseUrl}/admin/v1/api/profile-view-template/workspace-id/${this.projectId}/template-name/${templateName} `;
 
     const config: AxiosRequestConfig = {
@@ -482,7 +491,8 @@ export default class CustomerJourneyWidget extends LitElement {
         return id;
       })
       .catch((err: Error) => {
-        console.error(`[JDS Widget] Unable to fetch the ID of the journey-default-template`, err);
+        //@ts-ignore
+        console.error(`[JDS Widget] Unable to fetch the ID of the ${process.env.DOTENV.DEFAULT_TEMPLATE_NAME}`, err);
         return undefined;
       });
   }
@@ -499,6 +509,11 @@ export default class CustomerJourneyWidget extends LitElement {
 
     this.baseUrlCheck();
 
+    this.bearerToken = getWithExpiry("webex-access-token");
+    if(!this.bearerToken){
+      window.location.href = "/login";
+      return;
+    }
     if (this.bearerToken) {
       const header: EventSourceInitDict = {
         headers: {
@@ -569,6 +584,11 @@ export default class CustomerJourneyWidget extends LitElement {
 
     const url = `${this.baseUrl}/v1/api/progressive-profile-view/workspace-id/${this.projectId}/person-id/${this.identityId}/template-id/${templateId}`;
 
+    this.bearerToken = getWithExpiry("webex-access-token");
+    if(!this.bearerToken){
+      window.location.href = "/login";
+      return;
+    }
     const config: AxiosRequestConfig = {
       method: "GET",
       url,
@@ -650,6 +670,11 @@ export default class CustomerJourneyWidget extends LitElement {
     const encodedCustomer = this.encodeParameter(customer);
     const url = `${this.baseUrl}/v1/api/events/workspace-id/${this.projectId}?organizationId=${this.organizationId}&identity=${encodedCustomer}`;
 
+    this.bearerToken = getWithExpiry("webex-access-token");
+    if(!this.bearerToken){
+      window.location.href = "/login";
+      return;
+    }
     const config: AxiosRequestConfig = {
       method: "GET",
       url,
@@ -712,6 +737,12 @@ export default class CustomerJourneyWidget extends LitElement {
     }
 
     this.baseUrlCheck();
+
+    this.bearerToken = getWithExpiry("webex-access-token");
+    if(!this.bearerToken){
+      window.location.href = "/login";
+      return;
+    }
     if (this.bearerToken) {
       const header: EventSourceInitDict = {
         headers: {
@@ -969,7 +1000,12 @@ export default class CustomerJourneyWidget extends LitElement {
    */
   async getAliasesById(identityId: string | undefined): Promise<IdentityData | undefined> {
     const url = `${this.baseUrl}/admin/v1/api/person/workspace-id/${this.projectId}?personId=${identityId}&organizationId=${this.organizationId}`;
-
+    
+    this.bearerToken = getWithExpiry("webex-access-token");
+    if(!this.bearerToken){
+      window.location.href = "/login";
+      return;
+    }
     const config: AxiosRequestConfig = {
       method: "GET",
       url,
@@ -1015,6 +1051,11 @@ export default class CustomerJourneyWidget extends LitElement {
   async getAliasesByAlias(customer: string | null): Promise<IdentityData | undefined> {
     const url = `${this.baseUrl}/admin/v1/api/person/workspace-id/${this.projectId}/aliases/${customer}?organizationId=${this.organizationId}`;
 
+    this.bearerToken = getWithExpiry("webex-access-token");
+    if(!this.bearerToken){
+      window.location.href = "/login";
+      return;
+    }
     const config: AxiosRequestConfig = {
       method: "GET",
       url,
@@ -1090,6 +1131,9 @@ export default class CustomerJourneyWidget extends LitElement {
       .catch(err => {
         this.nameApiErrorMessage = `Failed to edit the name successfully`;
         console.error(`[JDS Widget] Failed to edit Identity Names ${identityId}`, err?.response);
+        if (err?.response?.data?.status === 401){
+          window.location.href = "/login";
+        }
       })
       .finally(() => {
         this.aliasNamesUpdateInProgress = false;
@@ -1197,6 +1241,8 @@ export default class CustomerJourneyWidget extends LitElement {
 
         if (err?.response?.data?.status === 409) {
           subErrorMessage = "This alias is a duplicate.";
+        } else if (err?.response?.data?.status === 401){
+          window.location.href = "/login";
         }
         this.aliasErrorMessage = `Failed to add alias(es) ${alias}. ${subErrorMessage}`;
       })
@@ -1245,9 +1291,12 @@ export default class CustomerJourneyWidget extends LitElement {
         }
         this.aliasErrorMessage = "";
       })
-      .catch((err: Error) => {
+      .catch(err => {
         console.error(`[JDS Widget] Failed to delete AliasById: (${identityId})`, alias, err);
         this.aliasErrorMessage = `Failed to delete alias ${alias}.`;
+        if (err?.response?.data?.status === 401){
+          window.location.href = "/login";
+        }
       })
       .finally(() => {
         this.setInlineAliasLoader(alias, false);

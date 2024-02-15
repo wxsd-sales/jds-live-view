@@ -15,8 +15,9 @@ export default merge(commonDev, {
     historyApiFallback: true,
     open: true,
     hot: true,
-    port: 10020,
+    //@ts-ignore
+    port: process.env.PORT,
     disableHostCheck: true,
-    host: "0.0.0.0",
+    host: process.env.HOSTNAME
   },
 });
