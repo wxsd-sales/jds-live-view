@@ -101,8 +101,12 @@
     "name": "icon-home-active_16",
     "color": "green"
   },
-  "Test": {
-    "name": "fa-solid fa-user",
-    "color": "green"
+  "Webex-Meeting": {
+    "name": "icon-meet_16",
+    "color": "blue"
+  },
+  "Webex-Call": {
+    "name": "icon-webex-calling_16",
+    "color": "purple"
   }
 }
