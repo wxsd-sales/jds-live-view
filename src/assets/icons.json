@@ -1,4 +1,8 @@
 {
+  "Appointment": {
+    "name": "icon-calendar-month_16",
+    "color": "yellow"
+  },
   "SMS": {
     "name": "icon-sms_16",
     "color": "mint"
